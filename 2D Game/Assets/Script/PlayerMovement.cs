@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private Animator anim;
 
     Vector2 movement;
+    Vector2 lastMoveDirection = Vector2.zero;
     [SerializeField] private float moveSpeed = 7f;
 
     [SerializeField] private AudioSource jumpSoundEffect;
@@ -30,6 +31,11 @@ public class PlayerMovement : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
+        if (movement != Vector2.zero)
+        {
+            movement.Normalize();
+        }
+
         anim.SetFloat("Horizontal", movement.x);
         anim.SetFloat("Vertical", movement.y);
         anim.SetFloat("Speed", movement.sqrMagnitude);
@@ -38,6 +44,12 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        if (Mathf.Abs(movement.x) > 0.1f || Mathf.Abs(movement.y) > 0.1f)
+        {
+            lastMoveDirection = new Vector2(movement.x, movement.y);
+        }
+        anim.SetFloat("LastMoveX", lastMoveDirection.x);
+        anim.SetFloat("LastMoveY", lastMoveDirection.y);
     }
 
 }
