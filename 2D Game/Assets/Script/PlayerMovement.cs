@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private Animator anim;
 
     Vector2 movement;
+    Vector2 lastMoveDirection = Vector2.right;
     [SerializeField] private float moveSpeed = 7f;
 
     [SerializeField] private AudioSource jumpSoundEffect;
@@ -28,7 +29,20 @@ public class PlayerMovement : MonoBehaviour
     {
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
-        anim.SetFloat("Horizontal", movement.x);
+
+        // Normalize the movement vector
+        if (movement != Vector2.zero)
+        {
+            movement.Normalize();
+        }
+
+        // Calculate the X difference between the player and the mouse position
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        float xDifference = mousePosition.x - transform.position.x;
+
+        // Set the Horizontal animator parameter based on the X difference
+        anim.SetFloat("Horizontal", Mathf.Sign(xDifference));
+
         anim.SetFloat("Vertical", movement.y);
         anim.SetFloat("Speed", movement.sqrMagnitude);
         
@@ -39,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        anim.SetFloat("LastMoveX", lastMoveDirection.x);
+        anim.SetFloat("LastMoveY", lastMoveDirection.y);
     }
-
-
 }
