@@ -31,6 +31,9 @@ public class PlayerMovement : MonoBehaviour
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
+>>>>>>> parent of e6998c5 (Player Movement Update)
+=======
 >>>>>>> parent of e6998c5 (Player Movement Update)
         anim.SetFloat("Horizontal", movement.x);
         anim.SetFloat("Vertical", movement.y);
