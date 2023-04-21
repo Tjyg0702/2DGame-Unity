@@ -15,6 +15,12 @@ public class UpperbodyControll : MonoBehaviour
 
     [SerializeField] private AudioSource jumpSoundEffect;
 
+    // Add a reference to the upper body Animator
+    [SerializeField] private Animator upperBodyAnim;
+
+    // Add a boolean variable to track combat state
+    private bool isInCombat = false;
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -23,9 +29,8 @@ public class UpperbodyControll : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
     }
-    [SerializeField] private Animator upperBodyAnim;
 
-
+    // Update is called once per frame
     private void Update()
     {
         movement.x = Input.GetAxisRaw("Horizontal");
@@ -43,13 +48,21 @@ public class UpperbodyControll : MonoBehaviour
 
         // Set the Horizontal animator parameter for both the player and upper body Animator
         anim.SetFloat("Horizontal", Mathf.Sign(xDifference));
-        upperBodyAnim.SetFloat("Horizontal", Mathf.Sign(xDifference));
+
+        // Only update the upper body animation when in combat
+        if (isInCombat)
+        {
+            upperBodyAnim.SetFloat("Horizontal", Mathf.Sign(xDifference));
+        }
 
         anim.SetFloat("Vertical", movement.y);
         anim.SetFloat("Speed", movement.sqrMagnitude);
 
         // Update lastMoveDirection based on the X difference
         lastMoveDirection = new Vector2(Mathf.Sign(xDifference), 0);
+
+        // Update combat state based on input (replace "Fire1" with your desired input)
+        isInCombat = Input.GetButton("Fire1");
     }
 
     private void FixedUpdate()
