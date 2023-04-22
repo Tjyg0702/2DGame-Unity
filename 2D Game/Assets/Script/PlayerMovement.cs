@@ -15,6 +15,9 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private AudioSource jumpSoundEffect;
 
+    // Add a boolean variable to track the melee attack state
+    private bool isAttacking = false;
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -27,13 +30,26 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
-
-        // Normalize the movement vector
-        if (movement != Vector2.zero)
+        // Check for melee attack input (left mouse button)
+        if (Input.GetMouseButtonDown(0) && !isAttacking)
         {
-            movement.Normalize();
+            StartCoroutine(PlayMeleeAttackAnimation());
+        }
+
+        if (!isAttacking)
+        {
+            movement.x = Input.GetAxisRaw("Horizontal");
+            movement.y = Input.GetAxisRaw("Vertical");
+
+            // Normalize the movement vector
+            if (movement != Vector2.zero)
+            {
+                movement.Normalize();
+            }
+        }
+        else
+        {
+            movement = Vector2.zero;
         }
 
         // Calculate the X difference between the player and the mouse position
@@ -45,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
 
         anim.SetFloat("Vertical", movement.y);
         anim.SetFloat("Speed", movement.sqrMagnitude);
-        
+
         // Update lastMoveDirection based on the X difference
         lastMoveDirection = new Vector2(Mathf.Sign(xDifference), 0);
     }
@@ -55,5 +71,19 @@ public class PlayerMovement : MonoBehaviour
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
         anim.SetFloat("LastMoveX", lastMoveDirection.x);
         anim.SetFloat("LastMoveY", lastMoveDirection.y);
+    }
+
+    private IEnumerator PlayMeleeAttackAnimation()
+    {
+        isAttacking = true;
+        rb.bodyType = RigidbodyType2D.Static;
+        anim.SetTrigger("Melee");
+
+        // Wait for the length of the attack animation
+        float animationLength = anim.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(animationLength);
+
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        isAttacking = false;
     }
 }
